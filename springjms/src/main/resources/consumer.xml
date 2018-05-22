@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--自动注解-->
+    <context:annotation-config></context:annotation-config>
+
+    <!--ActiveMQ为我们提供的ConnectionFactory-->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.0.105:61616"></property>
+    </bean>
+
+    <!--这个是Spring 我们提供的连接池-->
+    <bean id="singleConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="targetConnectionFactory"></property>
+    </bean>
+
+    <!--队列目的地 点对点-->
+    <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="queue"></constructor-arg>
+    </bean>
+
+    <!--主题模式目的地 发布订阅者-->
+    <bean id="topicDestionation" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="topic"></constructor-arg>
+    </bean>
+
+    <!--配置消息监听器-->
+    <bean  id="consumerListener"  class="com.jms.consumer.ConsumerListener"></bean>
+
+    <!--配置消息容器-->
+    <bean id="defaultMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!--配置连接器-->
+        <property name="connectionFactory" ref="singleConnectionFactory"></property>
+        <!--配置目的地-->
+        <!--&lt;!&ndash;队列模式的目的地&ndash;&gt;
+        <property name="destination" ref="queueDestination"></property>
+-->
+        <!--主题模式的目的地-->
+        <property name="destination" ref="topicDestionation"></property>
+
+        <!--配置消息监听器-->
+        <property name="messageListener" ref="consumerListener"></property>
+    </bean>
+
+</beans>

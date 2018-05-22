@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--自动注解-->
+    <context:annotation-config></context:annotation-config>
+
+    <!--ActiveMQ为我们提供的ConnectionFactory-->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.0.105:61616"></property>
+    </bean>
+
+    <!--这个是Spring 我们提供的连接池-->
+    <bean id="singleConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="targetConnectionFactory"></property>
+    </bean>
+
+    <!--队列目的地 点对点-->
+    <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="queue"></constructor-arg>
+    </bean>
+
+    <!--主题模式目的地 发布订阅者-->
+    <bean id="topicDestionation" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="topic"></constructor-arg>
+    </bean>
+
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="singleConnectionFactory"></property>
+    </bean>
+
+    <!--消息发送者的实现类-->
+    <bean id="produceServiceImple" class="com.jms.produce.ProduceServiceImple"></bean>
+</beans>
